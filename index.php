@@ -6,6 +6,7 @@ include 'conexion.php';
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+        <title>Hola mundo</title>
     <title>Página Dinámica con Supabase</title>
     <style>
         body { font-family: sans-serif; background-color: #f4f4f9; color: #333; margin: 20px; }
