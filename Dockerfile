@@ -1,8 +1,11 @@
 # Usar una imagen oficial de PHP con el servidor Apache
 FROM php:8.2-apache
 
-# Copiar los archivos de tu aplicación (index.php, conexion.php) al directorio del servidor
+# Copiar los archivos de tu aplicación
 COPY . /var/www/html/
 
-# Habilitar la extensión de PostgreSQL para que PHP pueda conectarse a Supabase
+# NUEVO PASO: Instalar la librería de desarrollo de PostgreSQL
+RUN apt-get update && apt-get install -y libpq-dev
+
+# Este comando ahora funcionará gracias al paso anterior
 RUN docker-php-ext-install pdo pdo_pgsql pgsql
