@@ -1,21 +1,14 @@
 <?php
-// Leer las credenciales desde las Variables de Entorno de Render
-$host     = getenv('DB_HOST');
-$port     = getenv('DB_PORT'); // <-- Leemos el nuevo puerto
-$dbname   = getenv('DB_NAME');
-$user     = getenv('DB_USER');
-$password = getenv('DB_PASSWORD');
+// conexion.php
+$servidor = "localhost";
+$usuario_bd = "root"; // Tu usuario de BD
+$contrasena_bd = ""; // Tu contraseña de BD
+$nombre_bd = "mi_base_de_datos"; // Tu base de datos
 
-// --- No modifiques el código de abajo ---
+// Usamos mysqli (de forma procedural e insegura)
+$conexion = mysqli_connect($servidor, $usuario_bd, $contrasena_bd, $nombre_bd);
 
-// Crear la cadena de conexión
-$conn_string = "host={$host} port={$port} dbname={$dbname} user={$user} password={$password}";
-
-// Establecer la conexión
-$conn = pg_connect($conn_string);
-
-// Verificar si la conexión falló
-if (!$conn) {
-  die("Error de conexión: No se pudo conectar a la base de datos de Supabase.");
+if (!$conexion) {
+    die("Conexión fallida: " . mysqli_connect_error());
 }
 ?>
