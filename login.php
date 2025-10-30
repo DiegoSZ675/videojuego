@@ -1,51 +1,47 @@
 <?php
-// login.php
+// login.php (VERSIÓN VULNERABLE A INYECCIÓN SQL)
 
-// ¡MUY IMPORTANTE! Debe ser la primera línea para que las sesiones funcionen
-session_start(); 
-
-// 1. Incluir la conexión
+session_start();
 include 'conexion.php';
 
-// 2. Obtener datos del formulario
-// (Asegúrate de que tu index.php tenga name="username")
+// 1. Obtener datos del formulario
 $username = $_POST['username'];
-$password = $_POST['contrasena'];
+$password = $_POST['contrasena']; // En este ejemplo, ni siquiera usaremos el password
 
 try {
-    // 3. Conectar a la BD
+    // 2. Conectar a la BD
     $pdo = conectarDB();
 
-    // 4. CAMBIO CLAVE: Buscar al usuario por 'username'
-    // Este es el cambio que arregla tu error
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->execute([$username]);
+    // 3. ¡EL AGUJERO DE SEGURIDAD!
+    // Estamos "pegando" (concatenando) el texto del usuario
+    // directamente en la consulta SQL.
+    $sql_vulnerable = "SELECT * FROM users WHERE username = '" . $username . "'";
+
+    // 4. Ejecutar la consulta insegura
+    // Usamos query() en lugar de prepare()
+    $stmt = $pdo->query($sql_vulnerable);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // 5. Verificar si el usuario existe Y si la contraseña es correcta
-    if ($user && password_verify($password, $user['password_hash'])) {
+    // 5. Lógica de login
+    // Si la consulta devuelve CUALQUIER fila, el login es exitoso
+    if ($user) {
         
-        // ¡Contraseña correcta!
-        // 6. Guardar datos del usuario en la sesión
+        // El ataque funciona: iniciamos sesión como el primer usuario
+        // que la consulta encontró (probablemente el 'admin' o el id 1).
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_username'] = $user['username'];
         
-        // 7. Redirigir a una página protegida (dashboard)
         header('Location: dashboard.php');
-        exit; // Termina el script después de redirigir
+        exit;
 
     } else {
-        // Error: Email o contraseña incorrectos
+        // El login falla (o la inyección no funcionó)
         echo "Usuario o contraseña incorrectos.";
         echo '<br><a href="index.php">Intentar de nuevo</a>';
     }
 
 } catch (PDOException $e) {
-    echo "Error en el login: " . $e->getMessage();
-}
-?>
-
-} catch (PDOException $e) {
-    echo "Error en el login: " . $e->getMessage();
+    // La inyección podría causar un error de sintaxis SQL
+    echo "Error en el login (o la inyección falló): " . $e->getMessage();
 }
 ?>
