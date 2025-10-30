@@ -9,8 +9,8 @@
     
     <form action="login.php" method="POST">
         <div>
-            <label for="email">Email (Usuario):</label>
-            <input type="email" id="email" name="email" required>
+            <label for="username">Usuario:</label>
+            <input type="text" id="username" name="username" required>
         </div>
         <div>
             <label for="contrasena">Contraseña:</label>
