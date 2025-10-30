@@ -4,35 +4,35 @@
 // 1. Incluir el archivo de conexión
 include 'conexion.php';
 
-// Comprueba si el formulario fue enviado (si el método es POST)
+// 2. Comprobar si el formulario fue enviado (si el método es POST)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    // --- SECCIÓN DE PROCESAMIENTO ---
+    // --- SECCIÓN DE PROCESAMIENTO (cuando se hace clic en "Registrarse") ---
     
-    // 2. Obtener datos del formulario (POST)
-    $email = $_POST['email'];
+    // 3. Obtener datos del formulario (username y contrasena)
+    $username = $_POST['username'];
     $password = $_POST['contrasena'];
 
-    // 3. Hashear la contraseña
+    // 4. Hashear la contraseña
     $hash = password_hash($password, PASSWORD_DEFAULT);
 
     try {
-        // 4. Conectar a la BD
+        // 5. Conectar a la BD
         $pdo = conectarDB();
         
-        // 5. Preparar la consulta SQL
-        $stmt = $pdo->prepare("INSERT INTO users (email, password_hash) VALUES (?, ?)");
+        // 6. Preparar la consulta SQL para insertar el nuevo 'username'
+        $stmt = $pdo->prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)");
         
-        // 6. Ejecutar la consulta
-        $stmt->execute([$email, $hash]);
+        // 7. Ejecutar la consulta
+        $stmt->execute([$username, $hash]);
         
         echo "¡Usuario registrado con éxito!";
         echo '<br><a href="index.php">Ir al login</a>';
 
     } catch (PDOException $e) {
-        // Manejar error, ej. email duplicado
-        if ($e->getCode() == 23505) {
-            echo "Error: Ese email ya está registrado.";
+        // 8. Manejar error (ej. si el usuario ya existe)
+        if ($e->getCode() == 23505) { // 23505 es el código de "violación de unicidad" en PostgreSQL
+            echo "Error: Ese nombre de usuario ya existe.";
         } else {
             echo "Error al registrar: " . $e->getMessage();
         }
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 } else {
     
-    // --- SECCIÓN DE VISTA (Mostrar el formulario) ---
+    // --- SECCIÓN DE VISTA (cuando se visita la página register.php) ---
     // Si el método no es POST, simplemente muestra el formulario HTML
 ?>
     <!DOCTYPE html>
@@ -55,8 +55,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         <form action="register.php" method="POST">
             <div>
-                <label for="reg_email">Email:</label>
-                <input type="email" id="reg_email" name="email" required>
+                <label for="reg_username">Nombre de Usuario:</label>
+                <input type="text" id="reg_username" name="username" required>
             </div>
             <div>
                 <label for="reg_contrasena">Contraseña:</label>
