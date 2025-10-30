@@ -1,32 +1,23 @@
 <?php
-// conexion.php
+// conexion.php (VERSIÓN PARA XAMPP / MySQL)
 
-/**
- * Crea una conexión a la base de datos (PostgreSQL en Supabase) usando PDO.
- * Lee la cadena de conexión desde las variables de entorno de Render.
- */
-function conectarDB() {
-    
-    // 1. Obtener la variable de entorno que configuraste en Render
-    $connection_string = getenv('DB_CONNECT_STRING');
+$servidor = "localhost";
+$usuario_bd = "root";       // El usuario por defecto de XAMPP
+$contrasena_bd = "";    // La contraseña por defecto de XAMPP es vacía
+$nombre_bd = "videojuego_db"; // La BD que acabas de crear
 
-    if ($connection_string === false) {
-        // Esto pasará si olvidas configurar la variable en el dashboard de Render
-        die("Error Crítico: La variable de entorno 'DB_CONNECT_STRING' no está configurada en Render.");
-    }
+try {
+    // Usamos 'mysql:' en lugar de 'pgsql:'
+    $pdo = new PDO("mysql:host=$servidor;dbname=$nombre_bd", $usuario_bd, $contrasena_bd);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    try {
-        // 2. Crear la conexión PDO para PostgreSQL
-        $pdo = new PDO($connection_string);
-        
-        // Configurar PDO para que lance excepciones en caso de error
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        
+    // Esta función nos permitirá llamar a conectarDB() como antes
+    function conectarDB() {
+        global $pdo;
         return $pdo;
-
-    } catch (PDOException $e) {
-        // Error si la conexión falla (credenciales mal puestas, etc.)
-        die("Error al conectar a la base de datos: " . $e->getMessage());
     }
+
+} catch (PDOException $e) {
+    die("Error al conectar a la base de datos local: " . $e->getMessage());
 }
 ?>
